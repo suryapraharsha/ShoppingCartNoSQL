@@ -61,187 +61,115 @@ exports.getProduct = (req, res, next) => {
  };
 
 
-// exports.getCart = (req, res, next) => {
+exports.getCart = (req, res, next) => {
 
-//   req.user
-//   .getCart()
-//   .then(cart=>{
-//       return cart.getProducts().then(products=>{
-//       res.render('shop/cart', {
-//               path: '/cart',
-//               pageTitle: 'Your Cart',
-//               products: products
-//           })
-//   })
-//   .catch(err=>{
-//     console.log(err);
-//   });
-//   // Cart.getCart(cart => {
-//   //   Product.fetchAll(products => {
-//   //     const cartProducts = [];
-//   //     for (product of products) {
-//   //       const cartProductData = cart.products.find(
-//   //         prod => prod.id === product.id
-//   //       );
-//   //       if (cartProductData) {
-//   //         cartProducts.push({ productData: product, qty: cartProductData.qty });
-//   //       }
-//   //     }
-//   //     res.render('shop/cart', {
-//   //       path: '/cart',
-//   //       pageTitle: 'Your Cart',
-//   //       products: cartProducts
-//   //     });
-//   //   });
-//    });
+  req.user
+  .getCart()
+  .then(products=>{
+      res.render('shop/cart', {
+              path: '/cart',
+              pageTitle: 'Your Cart',
+              products: products
+          })
+  })
+  .catch(err=>{
+    console.log(err);
+  });
+  
 
-
-//   };
+  };
 //  //postCart will a particular product (prodId) to the cart , it will check if a product is exis ted first or else it will add new product 
-//   exports.postCart = (req, res, next) => {
-//     const prodId = req.body.productId;
-//     let fetchedCart;
-//     let newQuantity = 1;
-//     req.user
-//       .getCart()
-//       .then(cart => {
-//         fetchedCart = cart;
-//         // console.log(cart);
-//         // cart {
-//         //   dataValues:
-//         //            { id: 1, createdAt: 2019-05-28T22:34:11.000Z,updatedAt: 2019-05-28T22:34:11.000Z,userId: 1 }
+  
+// add to cart will go to this route
+exports.postCart = (req, res, next) => {
+    const prodId = req.body.productId;
+    console.log('product id got is ',prodId);
+    Product.findById(prodId).then(product=>{
+      console.log('add to cart product is ',product);
+
+      return req.user.addToCart(product);
+
+    }).then(result=>{
+      console.log(result);
+      res.redirect('/cart');
+    });
+    // let fetchedCart;
+    // let newQuantity = 1;
+    // req.user
+    //   .getCart()
+    //   .then(cart => {
+    //     fetchedCart = cart;
         
-//         return cart.getProducts({ where: { id: prodId } }); //return a promise 
-//       })
-//       .then(products => {
-//               let product;
+    //     return cart.getProducts({ where: { id: prodId } }); //return a promise 
+    //   })
+    //   .then(products => {
+    //           let product;
               
 
-//               if (products.length > 0) {
-//                 product = products[0];
-//                 //console.log('product is ',product);
-//                 //product is  product {
-//                     // dataValues:
-//                     // { id: 1,
-//                     //   title: 'surya ',
-//                     //   price: 200,
-//                     //   imageUrl:
-//                     //   'https://maas.museum/app/uploads/2015/09/leonardo-da-vinci-the-codex-leicester-book-cover.jpg',
-//                     //   description: 'afd',
-//                     //   createdAt: 2019-05-28T22:30:06.000Z,
-//                     //   updatedAt: 2019-05-28T22:30:06.000Z,
-//                     //   userId: 1,
-//                     //   cartItem:
-//                     //   cartItem {
-//                     //     dataValues: [Object],
-//                     //     _previousDataValues: [Object],
-//                     //     _changed: {},
-//                     //     _modelOptions: [Object],
-//                     //     _options: [Object],
-//                     //     isNewRecord: false } },
-//               }
+    //           if (products.length > 0) {
+    //             product = products[0];
+                
+    //           }
               
-//               if (product) {
-//                 const oldQuantity = product.cartItem.quantity;
-//                 newQuantity = oldQuantity + 1;
-//                 return product;
-//               }
-//               return Product.findByPk(prodId);
-//       })
-//         .then(product => {
+    //           if (product) {
+    //             const oldQuantity = product.cartItem.quantity;
+    //             newQuantity = oldQuantity + 1;
+    //             return product;
+    //           }
+    //           return Product.findByPk(prodId);
+    //   })
+    //     .then(product => {
 
-//           return fetchedCart.addProduct(product, {
-//             through: { quantity: newQuantity }
-//           });
-//         })
-//       .then(() => {
-//         res.redirect('/cart');
-//       })
-//       .catch(err => console.log(err));
-//   };
+    //       return fetchedCart.addProduct(product, {
+    //         through: { quantity: newQuantity }
+    //       });
+    //     })
+    //   .then(() => {
+    //     res.redirect('/cart');
+    //   })
+    //   .catch(err => console.log(err));
+  };
 
-// exports.postCartDeleteProduct = (req, res, next) => {
-//   const prodId = req.body.productId;
-//   req.user //always request a user first
-//   .getCart()
-//   .then(cart=>{
-//     return cart.getProducts({where : {id : prodId}});
-//   }).then(products=>{
-//     const product = products[0];
-//     console.log('products are ',product); 
-//     // products are  [ product {
-//     //   dataValues:
-//     //    { id: 2,
-//     //      title: 'second book',
-//     //      price: 12,
-//     //      imageUrl:
-//     //       'https://cdn.vox-cdn.com/thumbor/J6XXXTlyLcBtViC6c1OVi8oJGtA=/0x0:2000x3000/1200x800/filters:focal(757x510:1077x830)/cdn.vox-cdn.com/uploads/chorus_image/image/51096913/90957259.0.jpg',
-//     //      description: 'afa',
-//     //      createdAt: 2019-05-28T22:30:15.000Z,
-//     //      updatedAt: 2019-05-28T22:30:15.000Z,
-//     //      userId: 1,
-//     //      cartItem: [cartItem] }
-//     return product.cartItem.destroy();
-//   }).then((result)=>{
-//     res.redirect('/cart');
-//   })
+exports.postCartDeleteProduct = (req, res, next) => {
+  const prodId = req.body.productId;
+  req.user //always request a user first
+  .deleteItemFromCart(prodId)
+  .then((result)=>{
+    res.redirect('/cart');
+  })
 
-//   .catch(err =>{
-//     console.log(err);
-//   });
+  .catch(err =>{
+    console.log(err);
+  });
 
  
-// };
-// exports.postOrder =(req,res,next)=>{
-//   let fetchedCart;
+};
+exports.postOrder =(req,res,next)=>{
+  let fetchedCart;
 
-//   req.user
-//   .getCart()
-//   .then(cart=>{
-//     //console.log('cart is ',cart);
-//     fetchedCart = cart ;
-
-//     return cart.getProducts();
-//     })
-//     .then(products=>{
-//     //console.log(products); // logs output like product{ {id :1 ,title : ...,cartItem : Object of cartItem},{id : 2, title : ,.... ,cartItem, Object}} which are in the cart 
-//       return req.user.
-//           createOrder()
-//           .then(order=>{
-//             return order.addProducts(
-//               products.map(product=>{
-//                 product.OrderItem={ quantity: product.cartItem.quantity};
-//                 return product;
-//               })
-//             );
-//           })
-//           .catch(err=>{console.log(err);});
-//   })
-
-//   .then(result=>{
-//     return fetchedCart.setProducts(null);
-    
-//   }).then(result=>{
-//     res.redirect('/orders');
-//   })
-//   .catch(err=>{console.log(err);});
+  req.user
+  .addOrder()
+  .then(result=>{
+    res.redirect('/orders');
+  })
+  .catch(err=>{console.log(err);});
 
 
-// }
-// exports.getOrders = (req, res, next) => {
-//   req.user
-//   .getOrders({include : ['products']})
-//   .then(orders=>{
-//     res.render('shop/orders', {
-//       path: '/orders',
-//       pageTitle: 'orders',
-//       orders : orders
-//     });
+}
+exports.getOrders = (req, res, next) => {
+  req.user
+  .getOrders()
+  .then(orders=>{
+    res.render('shop/orders', {
+      path: '/orders',
+      pageTitle: 'orders',
+      orders : orders
+    });
 
-//   })
-//   .catch(err=>{
-//     console.log(err);
-//   });
+  })
+  .catch(err=>{
+    console.log(err);
+  });
   
-// };
+};
 

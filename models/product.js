@@ -3,12 +3,14 @@ const getDb = require('../util/database').getDb;
 
 
 class Product{
-  constructor(title,price,description,imageUrl,id){
+  constructor(title,price,description,imageUrl,id,userId){
     this.title= title;
     this.price = price;
     this.imageUrl = imageUrl;
     this.description = description;
     this._id = id ? new mongodb.ObjectId(id): null;
+    this.userId = userId;
+
   }
 
   save(){
@@ -50,7 +52,7 @@ class Product{
   static findById(prodId){
     const db = getDb();
     return db.collection('products')
-    .find({_id:new mongodb.ObjectId(prodId)})
+    .find({ _id: new mongodb.ObjectId(prodId)})
     .next()
     .then(product=>{
       console.log(product);
